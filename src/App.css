@@ -1,0 +1,208 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+/* Modern hero background utility */
+.gradient-bg {
+  /* Full-bleed modern hero background image with subtle color accents + dark overlay for contrast */
+  background-image: linear-gradient(rgba(2,6,23,0.45), rgba(2,6,23,0.45)),
+                    url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1920&q=80'),
+                    radial-gradient(circle at 10% 20%, rgba(99,102,241,0.06), transparent 12%),
+                    radial-gradient(circle at 90% 80%, rgba(236,72,153,0.04), transparent 16%);
+  background-size: cover, cover, auto, auto;
+  background-position: center center, center center, 10% 20%, 90% 80%;
+  background-repeat: no-repeat;
+  min-height: 520px;
+}
+
+.hero-overlay {
+  background: linear-gradient(180deg, rgba(15,23,42,0.6), rgba(15,23,42,0.6));
+}
+
+/* Auth (Login / Register) theme styles for AI Career Portal */
+.auth-page {
+  /* Start immediately below navbar: subtract navbar height (h-16 => 64px).
+     We also compensate for the parent's top padding (py-8 -> 2rem) by
+     increasing min-height so the visual area still fills the viewport. */
+  min-height: calc(100vh - 64px + 2rem);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 3rem 1rem;
+}
+
+/* Make auth-page full-bleed even when inside centered container
+   so the gradient covers full viewport width with no white gutters */
+.auth-page {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+/* Pull the auth-page up to sit flush under the navbar even though it
+   is rendered inside a `main` with top padding (py-8). This removes
+   the visible white strip between the navbar and the gradient. */
+main.container .auth-page {
+  margin-top: -2rem; /* py-8 => 2rem */
+}
+
+/* Ensure navbar stays above the gradient when we pull auth-page up */
+nav.bg-white {
+  position: relative;
+  z-index: 50;
+}
+
+.auth-card {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.2), 0 2px 6px rgba(15,23,42,0.06);
+  padding: 2rem;
+  animation: fadeInUp 450ms ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151; /* gray-700 */
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem 0.75rem;
+  padding-left: 2.5rem; /* leave space for icon */
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #111827;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  outline: none;
+}
+
+.input-field:focus {
+  border-color: #9333ea;
+  box-shadow: 0 6px 20px rgba(147,51,234,0.12), 0 2px 6px rgba(99,102,241,0.06);
+}
+
+.auth-button {
+  width: 100%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  border-radius: 12px;
+  border: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.2s ease;
+  font-weight: 600;
+}
+
+.auth-button:hover:not(:disabled) {
+  transform: scale(1.03);
+  box-shadow: 0 8px 30px rgba(99,102,241,0.18);
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-link {
+  color: #9333ea;
+  font-weight: 600;
+  position: relative;
+  text-decoration: none;
+}
+
+.auth-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  width: 0%;
+  background: #9333ea;
+  transition: width 180ms ease;
+}
+
+.auth-link:hover::after {
+  width: 100%;
+}
+
+/* Navbar link styling */
+.nav-link {
+  color: #374151; /* gray-700 */
+  font-weight: 600; /* semi-bold */
+  transition: color 0.3s ease, border-color 0.3s ease, transform 0.15s ease;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: #9333ea;
+}
+
+/* Active nav item */
+.nav-link.active {
+  color: #9333ea;
+  font-weight: 700;
+  border-bottom: 2px solid #9333ea;
+  padding-bottom: 0.2rem;
+}
+
+/* Make Sign Up in navbar bold and match hover color without changing global .btn-primary elsewhere */
+nav .btn-primary {
+  font-weight: 600;
+  transition: color 0.3s ease, transform 0.15s ease;
+}
+
+nav .btn-primary:hover {
+  color: #9333ea;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

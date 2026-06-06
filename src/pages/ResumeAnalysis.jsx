@@ -10,7 +10,6 @@ import {
   Star,
   Target,
   Lightbulb,
-  RefreshCw
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -23,9 +22,10 @@ const ResumeAnalysis = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
 
-  useEffect(() => {
-    fetchResume();
-  }, [id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
+  fetchResume();
+}, [id]);
 
   const fetchResume = async () => {
     try {

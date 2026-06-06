@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { userAPI } from '../services/api';
-import { 
-  User, 
-  Mail, 
+import {  
   Phone, 
   MapPin, 
   Linkedin, 
@@ -36,7 +33,7 @@ const Profile = () => {
       remoteWork: false
     }
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -67,7 +64,7 @@ const Profile = () => {
   }, [user]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value,checked } = e.target;
     
     if (name.startsWith('profile.')) {
       const field = name.split('.')[1];

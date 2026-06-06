@@ -7,7 +7,6 @@ import {
   Brain, 
   TrendingUp, 
   Trash2,
-  Download,
   Calendar,
   Star,
   AlertCircle,

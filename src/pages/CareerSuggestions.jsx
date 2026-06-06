@@ -26,9 +26,20 @@ const CareerSuggestions = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [savedSuggestions, setSavedSuggestions] = useState([]);
+  const [sortBy, setSortBy] = useState('relevance');
 
   useEffect(() => {
     fetchSuggestions();
+  }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('savedCareerSuggestions');
+      if (stored) setSavedSuggestions(JSON.parse(stored));
+    } catch (e) {
+      console.warn('Failed to load saved suggestions', e);
+    }
   }, []);
 
   const fetchSuggestions = async () => {
@@ -88,6 +99,35 @@ const CareerSuggestions = () => {
     }
   };
 
+  const toggleSaveSuggestion = (suggestion) => {
+    const exists = savedSuggestions.find(s => s.id === suggestion.id || s.title === suggestion.title);
+    let updated;
+    if (exists) {
+      updated = savedSuggestions.filter(s => !(s.id === suggestion.id || s.title === suggestion.title));
+    } else {
+      updated = [suggestion, ...savedSuggestions];
+    }
+    setSavedSuggestions(updated);
+    try {
+      localStorage.setItem('savedCareerSuggestions', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Failed to save suggestion', e);
+    }
+  };
+
+  const isSuggestionVisible = (s) => {
+    if (activeTab === 'all') return true;
+    return s.type === activeTab;
+  };
+
+  const applySort = (list) => {
+    if (sortBy === 'priority') {
+      const order = { high: 0, medium: 1, low: 2 };
+      return [...list].sort((a,b) => (order[a.priority] || 3) - (order[b.priority] || 3));
+    }
+    return list;
+  };
+
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high': return 'text-red-600 bg-red-100';
@@ -128,10 +168,10 @@ const CareerSuggestions = () => {
     );
   }
 
-  // Split suggestions by type for easy rendering
-  const jobRoles = suggestions.filter(s => s.type === 'job_role');
-  const skillSuggestions = suggestions.filter(s => s.type === 'skill_development');
-  const certificationSuggestions = suggestions.filter(s => s.type === 'certification');
+  // Split suggestions by type for easy rendering and apply tab filtering + sorting
+  const jobRoles = applySort(suggestions.filter(s => s.type === 'job_role' && isSuggestionVisible(s)));
+  const skillSuggestions = applySort(suggestions.filter(s => s.type === 'skill_development' && isSuggestionVisible(s)));
+  const certificationSuggestions = applySort(suggestions.filter(s => s.type === 'certification' && isSuggestionVisible(s)));
 
   return (
     <>
@@ -172,6 +212,16 @@ const CareerSuggestions = () => {
             </button>
           ))}
         </nav>
+        <div className="mt-3 flex items-center justify-between">
+          <div className="text-sm text-gray-500">Saved: {savedSuggestions.length}</div>
+          <div className="flex items-center space-x-3">
+            <label className="text-sm text-gray-600">Sort:</label>
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border rounded px-2 py-1 text-sm">
+              <option value="relevance">Relevance</option>
+              <option value="priority">Priority</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* Job Roles Section */}
@@ -182,7 +232,17 @@ const CareerSuggestions = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {jobRoles.map((item, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
-                  <h5 className="font-semibold text-gray-900 mb-2">{item.title}</h5>
+                  <div className="flex items-start justify-between">
+                    <h5 className="font-semibold text-gray-900 mb-2">{item.title}</h5>
+                    <div className="flex items-center space-x-2">
+                      {item.priority && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${getPriorityColor(item.priority)}`}>{item.priority}</span>
+                      )}
+                      <button onClick={() => toggleSaveSuggestion(item)} className={`text-sm px-2 py-1 rounded ${savedSuggestions.find(s => s.id === item.id || s.title === item.title) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+                        {savedSuggestions.find(s => s.id === item.id || s.title === item.title) ? 'Saved' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
                   <p className="text-gray-600 text-sm mb-3">{item.description}</p>
                   <div className="text-xs text-gray-500 mb-2">Est. Time: {item.estimatedTime}</div>
                   <div className="text-xs text-gray-500 mb-2">Salary: ${item.salaryRange?.min?.toLocaleString()} - ${item.salaryRange?.max?.toLocaleString()}</div>
@@ -210,7 +270,17 @@ const CareerSuggestions = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {skillSuggestions.map((item, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
-                  <h5 className="font-semibold text-gray-900 mb-2">{item.title}</h5>
+                  <div className="flex items-start justify-between">
+                    <h5 className="font-semibold text-gray-900 mb-2">{item.title}</h5>
+                    <div className="flex items-center space-x-2">
+                      {item.priority && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${getPriorityColor(item.priority)}`}>{item.priority}</span>
+                      )}
+                      <button onClick={() => toggleSaveSuggestion(item)} className={`text-sm px-2 py-1 rounded ${savedSuggestions.find(s => s.id === item.id || s.title === item.title) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+                        {savedSuggestions.find(s => s.id === item.id || s.title === item.title) ? 'Saved' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
                   <p className="text-gray-600 text-sm mb-3">{item.description}</p>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {item.skills?.map((skill, i) => <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">{skill}</span>)}
@@ -236,7 +306,17 @@ const CareerSuggestions = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {certificationSuggestions.map((item, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
-                  <h5 className="font-semibold text-gray-900 mb-2">{item.title}</h5>
+                  <div className="flex items-start justify-between">
+                    <h5 className="font-semibold text-gray-900 mb-2">{item.title}</h5>
+                    <div className="flex items-center space-x-2">
+                      {item.priority && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${getPriorityColor(item.priority)}`}>{item.priority}</span>
+                      )}
+                      <button onClick={() => toggleSaveSuggestion(item)} className={`text-sm px-2 py-1 rounded ${savedSuggestions.find(s => s.id === item.id || s.title === item.title) ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+                        {savedSuggestions.find(s => s.id === item.id || s.title === item.title) ? 'Saved' : 'Save'}
+                      </button>
+                    </div>
+                  </div>
                   <p className="text-gray-600 text-sm mb-3">{item.description}</p>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {item.skills?.map((skill, i) => <span key={i} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">{skill}</span>)}

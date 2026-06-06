@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const LOCAL_API_BASE_URL = 'http://localhost:5001/api';
+const configuredApiUrl = process.env.REACT_APP_API_URL?.trim();
+const isLocalFrontend = typeof window !== 'undefined' &&
+  ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const API_BASE_URL = (isLocalFrontend ? LOCAL_API_BASE_URL : configuredApiUrl || LOCAL_API_BASE_URL)
+  .replace(/\/+$/, '');
 
 // Create axios instance
 const api = axios.create({
@@ -17,9 +22,13 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log('API Request:', config.method?.toUpperCase(), config.url, 'with token');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('API Request:', config.method?.toUpperCase(), config.url, 'with token');
+      }
     } else {
-      console.warn('No token found for API request:', config.method?.toUpperCase(), config.url);
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('No token found for API request:', config.method?.toUpperCase(), config.url);
+      }
     }
     return config;
   },
@@ -31,11 +40,15 @@ api.interceptors.request.use(
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.config.method?.toUpperCase(), response.config.url, response.status);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('API Response:', response.config.method?.toUpperCase(), response.config.url, response.status);
+    }
     return response;
   },
   (error) => {
-    console.error('API Error:', error.config?.method?.toUpperCase(), error.config?.url, error.response?.status, error.response?.data);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('API Error:', error.config?.method?.toUpperCase(), error.config?.url, error.response?.status, error.response?.data);
+    }
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -52,8 +65,10 @@ export const authAPI = {
   
   login: (credentials) =>
     api.post('/auth/login', credentials),
+
   adminLogin: (credentials) =>
     api.post('/auth/admin-login', credentials),
+
   adminSignup: (data) =>
     api.post('/auth/admin-signup', data),
   
@@ -63,15 +78,10 @@ export const authAPI = {
   updateProfile: (profileData) =>
     api.put('/auth/profile', profileData),
 };
-
 // Resume API
 export const resumeAPI = {
   uploadResume: (formData) =>
-    api.post('/resume/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }),
+    api.post('/resume/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   
   getResumes: () =>
     api.get('/resume'),
